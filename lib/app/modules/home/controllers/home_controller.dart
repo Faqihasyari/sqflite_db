@@ -1,45 +1,35 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:local_db/app/data/models/note_model.dart';
+import 'package:local_db/app/db/db_manager.dart';
+import 'package:sqflite/sqflite.dart';
 
 class HomeController extends GetxController {
-  final box = GetStorage();
-  RxInt data = 0.obs;
+  RxList allNote = <Note>[].obs;
+  DatabaseManager database = DatabaseManager.instance;
 
-  void decrement() {
-    data--;
-    simpan();
-  }
+  Future<void> getAllNotes() async {
+    Database db = await database.db;
+    List<Map<String, dynamic>> data = await db.query("notes");
 
-  void increment() {
-    data++;
-    simpan();
-  }
-
-  void simpan() async {
-    print('SIMPAN DATA');
-    if (box.read('angkaTerakhir') != null) {
-      await box.remove('angkaTerakhir');
-    }
-
-    await box.write('angkaTerakhir', data.value);
-  }
-
-  void bacaData() async {
-    if (box.hasData('angkaTerakhir')) {
-      data.value = box.read('angkaTerakhir')! as int;
+    if (data.isNotEmpty) {
+      allNote(Note.toJsonList(data));
+      allNote.refresh();
+    } else {
+      allNote.clear();
+      allNote.refresh();
     }
   }
 
-  void resetData() async {
-    if (box.read('angkaTerakhir') != null) {
-      await box.remove('angkaTerakhir');
-      data.value = 0;
-    }
+  Future deleteNote(int id) async {
+    Database db = await database.db;
+    await db.delete("notes", where: "id = ?", whereArgs: [id]);
+    await getAllNotes();
   }
 
   @override
   void onInit() {
-    bacaData();
+    getAllNotes();
     super.onInit();
   }
 }

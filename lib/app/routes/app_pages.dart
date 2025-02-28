@@ -1,5 +1,8 @@
 import 'package:get/get.dart';
 
+import 'package:local_db/app/modules/edit_note/bindings/edit_note_binding.dart';
+import 'package:local_db/app/modules/edit_note/views/edit_note_view.dart';
+
 import '../modules/add_note/bindings/add_note_binding.dart';
 import '../modules/add_note/views/add_note_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -20,8 +23,13 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.ADD_NOTE,
-      page: () => const AddNoteView(),
+      page: () => AddNoteView(),
       binding: AddNoteBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_NOTE,
+      page: () => EditNoteView(),
+      binding: EditNoteBinding(),
     ),
   ];
 }

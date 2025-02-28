@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:local_db/app/data/models/note_model.dart';
 import 'package:local_db/app/routes/app_pages.dart';
 
 import '../controllers/home_controller.dart';
@@ -14,22 +15,38 @@ class HomeView extends GetView<HomeController> {
         title: const Text('HomeView'),
         centerTitle: true,
         backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-              onPressed: () => controller.resetData(),
-              icon: Icon(Icons.restore))
-        ],
       ),
-      body: ListView.builder(
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: CircleAvatar(child: Text("${index + 1}")),
-            title: Text("Data ke - ${index + 1}"),
-            subtitle: Text("Deskripsi ke - ${index + 1}"),
-          );
-        },
-        itemCount: 10,
-      ),
+      body: FutureBuilder(
+          future: controller.getAllNotes(),
+          builder: (context, snap) {
+            if (snap.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            return Obx(() => (controller.allNote.length == 0)
+                ? Center(
+                    child: Text("Tidak ada data"),
+                  )
+                : ListView.builder(
+                    itemBuilder: (context, index) {
+                      Note note = controller.allNote[index];
+                      return ListTile(
+                        onTap: () =>
+                            Get.toNamed(Routes.EDIT_NOTE, arguments: note),
+                        leading: CircleAvatar(child: Text("${note.id}")),
+                        title: Text(" ${note.title}"),
+                        subtitle: Text(" ${note.desc}"),
+                        trailing: IconButton(
+                            onPressed: () {
+                              controller.deleteNote(note.id!);
+                            },
+                            icon: Icon(Icons.delete)),
+                      );
+                    },
+                    itemCount: controller.allNote.length,
+                  ));
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.toNamed(Routes.ADD_NOTE);

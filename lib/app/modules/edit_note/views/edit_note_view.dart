@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:local_db/app/modules/home/controllers/home_controller.dart';
+import '../../../data/models/note_model.dart';
+import '../controllers/edit_note_controller.dart';
 
-import '../controllers/add_note_controller.dart';
-
-class AddNoteView extends GetView<AddNoteController> {
+class EditNoteView extends GetView<EditNoteController> {
+  Note note = Get.arguments;
   final HomeController homeC = Get.find();
-  AddNoteView({super.key});
   @override
   Widget build(BuildContext context) {
+    controller.titleController.text = note.title!;
+    controller.descriptionController.text = note.desc!;
     return Scaffold(
         appBar: AppBar(
-          title: const Text('ADD NOTE'),
+          title: Text('EditNoteView'),
           centerTitle: true,
         ),
         body: ListView(
@@ -41,12 +43,13 @@ class AddNoteView extends GetView<AddNoteController> {
             Obx(
               () => ElevatedButton(
                 onPressed: () async {
-                  if (controller.isLoading.isFalse)  {
-                    controller.addNote();
+                  if (controller.isLoading.isFalse) {
+                    controller.editNote(note.id!);
                     await homeC.getAllNotes();
                   }
                 },
-                child: Text(controller.isLoading.isFalse ?'ADD NOTE' : "LOADING"),
+                child: Text(
+                    controller.isLoading.isFalse ? 'EDIT NOTE' : "LOADING"),
               ),
             )
           ],
